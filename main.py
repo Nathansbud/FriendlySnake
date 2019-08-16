@@ -1,7 +1,13 @@
+#!/usr/bin/python3
+
 import discord
 import os
 import json
+
+from time import sleep
 from string import punctuation
+
+sleep(60)
 
 with open(os.path.join(os.path.dirname(__file__), "credentials" + os.sep + "discord.json")) as jf:
     creds = json.load(jf)
@@ -23,7 +29,7 @@ async def on_message(message):
     if message.content.startswith("$reactwith "):
         react_content = message.content[len("$reactwith "):]
         alphabet = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷", "🇸", "🇹", "🇺", "🇻", "🇼", "🇽", "🇾", "🇿"]
-        numbers = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+        numbers = ["0⃣","1⃣","2⃣","3⃣","4⃣","5⃣","6⃣","7⃣","8⃣","9⃣"]
 
         reacted = []
 
@@ -104,11 +110,7 @@ async def on_message(message):
         for emoji in react_emoji:
             await message.add_reaction(emoji)
 
-
-
-
 client.run(creds['FriendlySnake']['bot_token'])
-
 
 if __name__ == '__main__':
     pass
