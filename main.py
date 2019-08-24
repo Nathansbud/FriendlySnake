@@ -97,8 +97,6 @@ async def on_message(message):
 
             await message.channel.send("Hi, " + address_as + ", I'm dad-bot!")
 
-
-
     if " dick " in message.content or message.content.endswith(" dick") or message.content == "dick":
         await message.add_reaction("🍆")
 
