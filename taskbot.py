@@ -1,17 +1,22 @@
+#!/usr/bin/python3
+
 import discord
 import os
 import json
 from datetime import date
 from random import randint
+from time import sleep
+
+sleep(60)
 
 with open(os.path.join(os.path.dirname(__file__), "credentials" + os.sep + "discord.json")) as jf:
     creds = json.load(jf)
 
-todo_path = os.path.dirname(__file__) + os.sep + "data" + os.sep + "todo.json"
+todo_path = os.path.join(os.path.dirname(__file__), "data", "todo.json")
 client = discord.Client()
 
 def generate_id():
-    return str(randint(10000000, 99999999))
+    return str(randint(10000, 99999))
 
 async def update_todo():
     c = client.get_channel(614850532493885451)
@@ -20,8 +25,10 @@ async def update_todo():
         await msg.delete()
     except discord.errors.NotFound:
         pass
-
-    await c.send(get_todo_print())
+    
+    tdp = get_todo_print()
+    if len(tdp) > 0: await c.send(get_todo_print())
+    else: await c.send("Todo list is empty! Add an item by typing $add, or view completed items by typing $completed!")
 
 def get_todo_print(opts=[]):
     out = ""
