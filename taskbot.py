@@ -32,19 +32,31 @@ async def update_todo():
 
 def get_todo_print(opts=[]):
     out = ""
-    count = 1
     with open(todo_path) as jf:
         todo = json.load(jf)
 
-    for item in todo['current_tasks']:
-        out += str(count) + ") " + \
-               (item['task'] + " " if "task" in item else "") + \
-               (("[Assigned: " + item['assigned'] + "] ") if "assigned" in item else "") + \
-               (("[Committee: " + item['committee'] + "] ") if "committee" in item else "") + \
-               (("[Due: " + item['due'] + "] ") if "due" in item else "") + \
-               (("[Added: " + item['date'] + " by " + item['author'] + "] ") if "showadded" in opts else "") + \
-               ("[ID: " + item['id'] + "] ") + "\n"
-        count += 1
+    committees = ["Meta", "Build", "Finance", "Outreach", "Design", "Media", "Scouting", "Programming"]
+    non_tagged = [nt for nt in todo['current_tasks'] if 'committee' not in nt]
+
+    for com in committees:
+        com_tasks = [t for t in todo['current_tasks'] if 'committee' in t and t['committee'] == com]
+        out += "["+com.upper()+"]\n\n"
+        for item in com_tasks:
+            out += "— " + \
+                   (item['task'] + " " if "task" in item else "") + \
+                   (("[Assigned: " + item['assigned'] + "] ") if "assigned" in item else "") + \
+                   (("[Due: " + item['due'] + "] ") if "due" in item else "") + \
+                   (("[Added: " + item['date'] + " by " + item['author'] + "] ") if "showadded" in opts else "") + \
+                   ("[ID: " + item['id'] + "] ") + "\n\n"
+    if len(non_tagged) > 0:
+        out += "[OTHER]\n\n"
+        for item in non_tagged:
+            out += "— " + \
+                   (item['task'] + " " if "task" in item else "") + \
+                   (("[Assigned: " + item['assigned'] + "] ") if "assigned" in item else "") + \
+                   (("[Due: " + item['due'] + "] ") if "due" in item else "") + \
+                   (("[Added: " + item['date'] + " by " + item['author'] + "] ") if "showadded" in opts else "") + \
+                   ("[ID: " + item['id'] + "] ") + "\n\n"
     return out
 
 @client.event
@@ -90,7 +102,7 @@ async def on_message(message):
                     task_dict["due"] = part[part.find(" ")+1:].strip()
                 elif p.startswith("author ") or p.startswith("from "):
                     task_dict["author"] = part[part.find(" ")+1:].strip()
-                elif p.startswith("committee ") or p.startswith("group "):
+                elif p.startswith("c ") or p.startswith("committee ") or p.startswith("group "):
                     task_dict["committee"] = part[part.find(" ")+1:].strip()
 
             if "task" in task_dict and len(task_dict['task']) != 0:
@@ -177,7 +189,9 @@ async def on_message(message):
             count += 1
         if len(out) > 0: await message.channel.send(out)
         else: await message.channel.send("No items have been completed! Mark a task as completed through $finish {ID}")
-
+    if ml.startswith("$help ") or ml == "$help":
+        print("this has real code but it's on the rpi and i don't wanna put to grab it off it")
+        pass
     if ml.startswith("$readd ") or ml.startswith("$return "):
         m_id = message.content.split(" ")[1]
         passed = False
@@ -196,6 +210,7 @@ async def on_message(message):
 
         if passed:
             await message.channel.send("Re-added item with ID " + m_id + " to current task list!")
+            await update_todo()
         else: await message.channel.send("No item with ID " + m_id + " on the completed task list!")
 
 client.run(creds['TBot']['bot_token'])
